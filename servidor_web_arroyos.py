@@ -22,8 +22,8 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from typing import Dict, List, Optional, Set, Tuple
 
 from modelo_discreto import (
-    AFD,
     COLORES,
+    ControlEstados,
     CuencaDAG,
     DESCRIPCION,
     Estado,
@@ -688,7 +688,7 @@ def calcular_ruta_callejera_en_grafo(
 
 
 class NodoViaWeb:
-    """Nodo arterial metropolitano monitoreado en Google Maps mediante su propio AFD."""
+    """Nodo arterial metropolitano monitoreado en Google Maps mediante control discreto de estados."""
 
     def __init__(self, id_: str, nombre: str, corto: str, lat: float, lng: float, sucesores: List[str]) -> None:
         self.id = id_
@@ -697,15 +697,15 @@ class NodoViaWeb:
         self.lat = lat
         self.lng = lng
         self.sucesores = list(sucesores)
-        self.afd = AFD()
+        self.control_estado = ControlEstados()
         self.reportantes: Set[str] = set()
 
     @property
     def estado(self) -> Estado:
-        return self.afd.estado
+        return self.control_estado.estado
 
     def reiniciar(self) -> None:
-        self.afd.reiniciar()
+        self.control_estado.reiniciar()
         self.reportantes.clear()
 
 
@@ -1000,20 +1000,20 @@ class EstadoServidor:
             nv.reportantes.add(ciudadano)
             k = self.sistema.k
             if ValidadorConsenso.consenso(nv.reportantes, k=k):
-                _, q_new = nv.afd.procesar(Simbolo.CONSENSO)
+                _, q_new = nv.control_estado.procesar(Simbolo.CONSENSO)
                 self._log(
                     f"[VÍA IMPORTANTE {nv.id}] Consenso |R|={len(nv.reportantes)}>={k} -> {q_new.value} ({nv.corto}).",
                     "critico",
                 )
                 for suc in nv.sucesores:
                     if suc in self.cuenca.nodos and self.cuenca.nodos[suc].estado is Estado.VERDE:
-                        self.cuenca.nodos[suc].aplicar_simbolo(Simbolo.ALERTA)
+                        self.cuenca.nodos[suc].control_estado.procesar(Simbolo.ALERTA)
                         self._log(f"Propagación preventiva {nv.id} -> {suc}: AMARILLO.", "logica")
                     elif suc in self.nodos_viales_extra and self.nodos_viales_extra[suc].estado is Estado.VERDE:
-                        self.nodos_viales_extra[suc].afd.procesar(Simbolo.ALERTA)
+                        self.nodos_viales_extra[suc].control_estado.procesar(Simbolo.ALERTA)
                         self._log(f"Propagación preventiva vial {nv.id} -> {suc}: AMARILLO.", "logica")
             else:
-                _, q_new = nv.afd.procesar(Simbolo.REPORTE)
+                _, q_new = nv.control_estado.procesar(Simbolo.REPORTE)
                 self._log(
                     f"[VÍA {nv.id}] Reporte ciudadano ({len(nv.reportantes)}/{k}) -> {q_new.value} ({nv.corto}).",
                     "logica",
@@ -1560,7 +1560,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
           <div style="font-size:12px; min-width:210px;">
             <div style="margin-bottom:4px;">${badgeTipo}</div>
             <b style="font-size:13px;">${n.id}: ${n.nombre}</b><br>
-            <b>Estado AFD:</b> <span style="color:${n.color}; font-weight:bold;">${n.estado}</span> (${n.descripcion})<br>
+            <b>Nivel de alerta:</b> <span style="color:${n.color}; font-weight:bold;">${n.estado}</span> (${n.descripcion})<br>
             <b>Consenso ciudadano:</b> |R_${n.id}| = ${n.reportes} / k=${n.k}<br>
             <div style="display:flex; gap:5px; margin-top:6px;">
               <button onclick="usarNodoRuta('origen', ${n.lat}, ${n.lng}, '${n.id}: ${n.corto.replace(/'/g, '')}')" style="flex:1; background:#0284c7; color:white; border:none; padding:5px 6px; border-radius:5px; cursor:pointer; font-size:11px; font-weight:600;">

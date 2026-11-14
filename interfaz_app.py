@@ -14,7 +14,7 @@ Integra:
   - Unidad 4 (MSc Iván Gómez): Receta del proyecto final, 4 preguntas de modelación,
     Distancias geodésicas BFS y diámetro, Centralidad de Grado C_D(v), Cercanía C_C(v)
     (y variante armónica H(v)), Intermediación C_B(v) y Red Bipartita Ciudadanos–Nodos.
-  - Autómata Finito Determinista (AFD) en vivo y Consenso Booleano C(R, k).
+  - Función discreta de transición de estados de alerta y Consenso Booleano C(R, k).
 """
 
 from __future__ import annotations
@@ -26,8 +26,8 @@ from tkinter import filedialog, messagebox, ttk
 from typing import Dict, List, Optional, Set, Tuple
 
 from modelo_discreto import (
-    AFD,
     COLORES,
+    ControlEstados,
     CuencaDAG,
     DESCRIPCION,
     Estado,
@@ -111,7 +111,7 @@ class App(tk.Tk):
     def __init__(self) -> None:
         super().__init__()
         self.title(
-            "Alerta Temprana de Arroyos – Uninorte (Matemáticas Discretas: Grafos, Árboles, Redes y AFD)"
+            "Alerta Temprana de Arroyos – Uninorte (Matemáticas Discretas: Grafos, Árboles y Redes)"
         )
         self.geometry("1440x810")
         self.minsize(1300, 720)
@@ -141,7 +141,6 @@ class App(tk.Tk):
         self._after_id_bfs: Optional[str] = None
         self._nodos_onda_actual: Set[str] = set()
         self._distancias_onda: Dict[str, int] = {}
-        self._palabra_buffer: List[Simbolo] = []
 
         # Carga de imágenes de mapa en memoria
         self.mapa_google: Optional[tk.PhotoImage] = None
@@ -354,8 +353,8 @@ class App(tk.Tk):
             font=("Segoe UI", 8, "italic"),
         ).grid(row=3, column=0, sticky="ew", pady=(3, 3))
 
-        # 5. Leyenda de estados del AFD
-        leyenda = ttk.LabelFrame(col_izq, text="Estados del Autómata Finito Determinista M = (Q, Σ, δ, q₀, F)")
+        # 5. Leyenda de niveles de alerta en los vértices
+        leyenda = ttk.LabelFrame(col_izq, text="Niveles Discretos de Alerta en los Vértices (Q)")
         leyenda.grid(row=4, column=0, sticky="ew")
         for i, est in enumerate(Estado):
             marco = ttk.Frame(leyenda, style="Card.TFrame")
@@ -363,27 +362,23 @@ class App(tk.Tk):
             c = tk.Canvas(marco, width=16, height=16, bg="#ffffff", highlightthickness=0)
             c.create_oval(2, 2, 14, 14, fill=COLORES[est], outline="#222222", width=1.4)
             c.pack(side="left")
-            acept = " (∈ F)" if est in AFD.F else (" (q₀)" if est is AFD.Q0 else "")
+            etq_q = " (Crítico)" if est in ControlEstados.F else (" (Inicial)" if est is ControlEstados.Q0 else "")
             ttk.Label(
                 marco,
-                text=f"{est.value}{acept} – {DESCRIPCION[est]}",
+                text=f"{est.value}{etq_q} – {DESCRIPCION[est]}",
                 font=("Segoe UI", 8, "bold" if est is Estado.ROJO else "normal"),
             ).pack(side="left", padx=4)
 
         # =====================================================================
-        # COLUMNA DERECHA: Control, Monitoreo de Arroyos y Autómata AFD
+        # COLUMNA DERECHA: Control, Navegación y Monitoreo de Arroyos
         # =====================================================================
         self.notebook = ttk.Notebook(self)
         self.notebook.grid(row=0, column=1, sticky="nsew", padx=(4, 10), pady=8)
 
         self.tab_control = ttk.Frame(self.notebook)
-        self.tab_afd = ttk.Frame(self.notebook)
-
         self.notebook.add(self.tab_control, text=" 🧭 Navegación y Monitoreo de Arroyos ")
-        self.notebook.add(self.tab_afd, text=" ⚙️ Autómata AFD ")
 
         self._construir_tab_control()
-        self._construir_tab_afd()
 
     # -- Pestaña 1: Control y Bitácora ----------------------------------------
     def _construir_tab_control(self) -> None:
@@ -519,7 +514,7 @@ class App(tk.Tk):
         # Inspector formal del vértice seleccionado
         ficha = ttk.LabelFrame(
             tab,
-            text="Inspector Formal del Vértice (Vecindades N_G, Grados, AFD y Consenso)",
+            text="Inspector Formal del Vértice (Vecindades N_G, Grados, Alerta y Consenso)",
         )
         ficha.grid(row=2, column=0, sticky="ew", padx=6, pady=3)
         ficha.columnconfigure(0, weight=1)
@@ -553,7 +548,7 @@ class App(tk.Tk):
         scroll.grid(row=0, column=1, sticky="ns", pady=4)
         for etiqueta, color, negrita in [
             ("info", "#1e293b", False),
-            ("afd", "#1d4ed8", False),
+            ("estado", "#1d4ed8", False),
             ("logica", "#7e22ce", False),
             ("alerta", "#c2570c", False),
             ("critico", "#b91c1c", True),
@@ -696,117 +691,6 @@ class App(tk.Tk):
         self.txt_grafo.grid(row=0, column=0, sticky="nsew", padx=(6, 0), pady=(6, 0))
         scroll_y.grid(row=0, column=1, sticky="ns", pady=(6, 0))
         scroll_x.grid(row=1, column=0, sticky="ew", padx=(6, 0))
-
-    # -- Pestaña 4: Autómata Finito Determinista (AFD) ------------------------
-    def _construir_tab_afd(self) -> None:
-        tab = self.tab_afd
-        tab.columnconfigure(0, weight=1)
-        tab.rowconfigure(1, weight=1)
-
-        marco_diag = ttk.LabelFrame(
-            tab,
-            text="Diagrama de Transición de Estados en Vivo: M = (Q, Σ, δ, q₀=VERDE, F={ROJO})",
-        )
-        marco_diag.grid(row=0, column=0, sticky="ew", padx=6, pady=(6, 4))
-        marco_diag.columnconfigure(0, weight=1)
-
-        self.lbl_afd_nodo = ttk.Label(
-            marco_diag,
-            text="",
-            font=("Segoe UI", 9, "bold"),
-            foreground="#1d4ed8",
-        )
-        self.lbl_afd_nodo.grid(row=0, column=0, sticky="w", padx=8, pady=(4, 2))
-
-        self.canvas_afd = tk.Canvas(
-            marco_diag,
-            width=430,
-            height=240,
-            bg="#f8fafc",
-            highlightthickness=1,
-            highlightbackground="#cbd5e1",
-        )
-        self.canvas_afd.grid(row=1, column=0, sticky="ew", padx=8, pady=(2, 6))
-
-        marco_tabla = ttk.LabelFrame(tab, text="Tabla Formal de la Función Total δ: Q × Σ → Q")
-        marco_tabla.grid(row=1, column=0, sticky="nsew", padx=6, pady=4)
-        marco_tabla.columnconfigure(0, weight=1)
-        marco_tabla.rowconfigure(0, weight=1)
-
-        columnas = ("estado", "REPORTE", "ALERTA_ARRIBA", "CONSENSO", "REINICIO")
-        self.tree_delta = ttk.Treeview(
-            marco_tabla,
-            columns=columnas,
-            show="headings",
-            height=5,
-        )
-        self.tree_delta.heading("estado", text="Estado q ∈ Q")
-        self.tree_delta.heading("REPORTE", text="δ(q, REPORTE)")
-        self.tree_delta.heading("ALERTA_ARRIBA", text="δ(q, ALERTA)")
-        self.tree_delta.heading("CONSENSO", text="δ(q, CONSENSO)")
-        self.tree_delta.heading("REINICIO", text="δ(q, REINICIO)")
-
-        self.tree_delta.column("estado", width=110, anchor="w")
-        for col in columnas[1:]:
-            self.tree_delta.column(col, width=85, anchor="center")
-
-        self.tree_delta.tag_configure("activo", background="#dbeafe", font=("Consolas", 8, "bold"))
-        self.tree_delta.tag_configure("normal", background="#ffffff")
-        self.tree_delta.grid(row=0, column=0, sticky="nsew", padx=8, pady=6)
-
-        marco_sim = ttk.LabelFrame(
-            tab,
-            text="Función de Transición Extendida δ̂: Q × Σ* → Q (Simulador de Palabras w ∈ Σ*)",
-        )
-        marco_sim.grid(row=2, column=0, sticky="ew", padx=6, pady=(4, 6))
-        marco_sim.columnconfigure(0, weight=1)
-
-        self.traza_nodo_var = tk.StringVar()
-        ttk.Label(
-            marco_sim,
-            textvariable=self.traza_nodo_var,
-            font=("Consolas", 8),
-            wraplength=430,
-        ).grid(row=0, column=0, sticky="w", padx=8, pady=(6, 4))
-
-        fila_syms = ttk.Frame(marco_sim, style="Card.TFrame")
-        fila_syms.grid(row=1, column=0, sticky="ew", padx=8, pady=2)
-        ttk.Label(fila_syms, text="Construir w:").pack(side="left", padx=(0, 4))
-        for sim, etq in [
-            (Simbolo.REPORTE, "+REPORTE"),
-            (Simbolo.ALERTA, "+ALERTA"),
-            (Simbolo.CONSENSO, "+CONSENSO"),
-            (Simbolo.REINICIO, "+REINICIO"),
-        ]:
-            ttk.Button(
-                fila_syms,
-                text=etq,
-                style="Action.TButton",
-                command=lambda s=sim: self._agregar_simbolo_palabra(s),
-            ).pack(side="left", padx=2)
-
-        self.palabra_buffer_var = tk.StringVar(value="w = ε (palabra vacía)")
-        ttk.Label(
-            marco_sim,
-            textvariable=self.palabra_buffer_var,
-            font=("Consolas", 9, "bold"),
-            foreground="#7e22ce",
-        ).grid(row=2, column=0, sticky="w", padx=8, pady=4)
-
-        fila_acc_w = ttk.Frame(marco_sim, style="Card.TFrame")
-        fila_acc_w.grid(row=3, column=0, sticky="ew", padx=8, pady=(2, 8))
-        ttk.Button(
-            fila_acc_w,
-            text="▶ Ejecutar δ̂(q, w) en el nodo seleccionado",
-            style="Primary.TButton",
-            command=self._ejecutar_palabra_buffer,
-        ).pack(side="left", padx=(0, 6))
-        ttk.Button(
-            fila_acc_w,
-            text="Limpiar w",
-            style="Action.TButton",
-            command=self._limpiar_palabra_buffer,
-        ).pack(side="left")
 
     # -- mensajes iniciales de arranque ---------------------------------------
     def _mensajes_iniciales(self) -> None:
@@ -1012,31 +896,6 @@ class App(tk.Tk):
             520,
             lambda: self._iniciar_animacion_capas_bfs(id_origen, capas, indice + 1),
         )
-
-    # -- simulador de palabras w ∈ Σ* -----------------------------------------
-    def _agregar_simbolo_palabra(self, simbolo: Simbolo) -> None:
-        self._palabra_buffer.append(simbolo)
-        cad = " · ".join(s.value for s in self._palabra_buffer)
-        self.palabra_buffer_var.set(f"w = ({cad})   [|w| = {len(self._palabra_buffer)}]")
-
-    def _limpiar_palabra_buffer(self) -> None:
-        self._palabra_buffer.clear()
-        self.palabra_buffer_var.set("w = ε (palabra vacía)")
-
-    def _ejecutar_palabra_buffer(self) -> None:
-        if not self._palabra_buffer:
-            messagebox.showinfo(
-                "Palabra vacía",
-                "Con la palabra vacía w = ε se cumple δ̂(q, ε) = q (sin cambios). "
-                "Agrega al menos un símbolo con los botones superiores.",
-                parent=self,
-            )
-            return
-        self._cancelar_animacion_bfs()
-        secuencia = list(self._palabra_buffer)
-        self._limpiar_palabra_buffer()
-        self.sistema.procesar_palabra_en_nodo(self.seleccion, secuencia)
-        self._dibujar()
 
     # -- bitácora -------------------------------------------------------------
     def _log(self, mensaje: str, etiqueta: str = "info") -> None:
@@ -1378,7 +1237,7 @@ class App(tk.Tk):
                 width=3 if sel else 2,
                 tags=(tag,),
             )
-            if est in AFD.F:
+            if est in ControlEstados.F:
                 c.create_oval(
                     x - r + 3,
                     y - r + 3,
@@ -1557,7 +1416,6 @@ class App(tk.Tk):
         self._actualizar_ficha()
         self._actualizar_tab_redes()
         self._actualizar_tab_grafo()
-        self._dibujar_afd_vivo()
 
     def _actualizar_resumen_ruta(self, ruta_info: Dict[str, object]) -> None:
         if not hasattr(self, "resumen_ruta_var"):
@@ -1611,7 +1469,7 @@ class App(tk.Tk):
         n_out = "{" + ", ".join(g.vecindad_salida(n.id)) + "}" if g.vecindad_salida(n.id) else "∅"
         n_ab = "{" + ", ".join(g.vecindad_abierta(n.id)) + "}"
         n_ce = "{" + ", ".join(g.vecindad_cerrada(n.id)) + "}"
-        acept = "∈ F (Emergencia)" if n.afd.es_aceptacion() else "∉ F"
+        critico = "Crítico (Desbordado)" if n.control_estado.es_critico() else "Operativo"
 
         self.info_var.set(
             f"Vértice    : {n.id} · {n.nombre}\n"
@@ -1619,7 +1477,7 @@ class App(tk.Tk):
             f"No dirigido: N_G({n.id})={n_ab} | N_G[{n.id}]={n_ce}\n"
             f"Valencia   : grad⁻={g.grado_entrada(n.id)}, grad⁺={g.grado_salida(n.id)}, "
             f"grad({n.id})={g.grado_no_dirigido(n.id)} | Nivel L={niveles[n.id]} ({g.clasificar_nodo(n.id)})\n"
-            f"Estado AFD : q = {n.estado.value} ({DESCRIPCION[n.estado]}) — {acept}\n"
+            f"Estado     : {n.estado.value} ({DESCRIPCION[n.estado]}) — {critico}\n"
             f"Consenso   : R_{n.id} = {ev['conjunto_R']}  ⇒  {ev['formula_consenso']}"
         )
 
@@ -2106,177 +1964,3 @@ class App(tk.Tk):
         self.txt_grafo.delete("1.0", "end")
         self.txt_grafo.insert("1.0", "\n".join(lineas))
         self.txt_grafo.configure(state="disabled")
-
-    # -- renderizado del diagrama del AFD en vivo -----------------------------
-    def _dibujar_afd_vivo(self) -> None:
-        nodo = self.cuenca.nodos[self.seleccion]
-        q_actual = nodo.estado
-        ult = nodo.afd.ultima_transicion
-
-        self.lbl_afd_nodo.configure(
-            text=f"Autómata del vértice {nodo.id} ({nodo.corto}) — Estado actual: q = {q_actual.value}"
-        )
-
-        c = self.canvas_afd
-        c.delete("all")
-
-        pos_q: Dict[Estado, Tuple[int, int]] = {
-            Estado.VERDE: (95, 62),
-            Estado.NARANJA: (335, 62),
-            Estado.AMARILLO: (95, 180),
-            Estado.ROJO: (335, 180),
-        }
-        rq = 27
-
-        vx, vy = pos_q[Estado.VERDE]
-        c.create_line(22, vy, vx - rq - 2, vy, arrow=tk.LAST, width=2.5, fill="#0f172a")
-        c.create_text(35, vy - 12, text="inicio", font=("Segoe UI", 8, "italic"), fill="#334155")
-
-        def _es_ultima(orig: Estado, dest: Estado, sims: Set[Simbolo]) -> bool:
-            if ult is None:
-                return False
-            u_o, u_s, u_d = ult
-            return u_o is orig and u_d is dest and u_s in sims
-
-        aristas_afd = [
-            (Estado.VERDE, Estado.NARANJA, "REPORTE", {Simbolo.REPORTE}, -12),
-            (Estado.VERDE, Estado.AMARILLO, "ALERTA", {Simbolo.ALERTA}, 0),
-            (Estado.VERDE, Estado.ROJO, "CONSENSO", {Simbolo.CONSENSO}, -10),
-            (Estado.AMARILLO, Estado.NARANJA, "REPORTE", {Simbolo.REPORTE}, 10),
-            (Estado.AMARILLO, Estado.ROJO, "CONSENSO", {Simbolo.CONSENSO}, 12),
-            (Estado.NARANJA, Estado.ROJO, "CONSENSO", {Simbolo.CONSENSO}, 0),
-        ]
-
-        for orig, dest, etq, cj_sim, offset_perp in aristas_afd:
-            x1, y1 = pos_q[orig]
-            x2, y2 = pos_q[dest]
-            dx, dy = x2 - x1, y2 - y1
-            dist = math.hypot(dx, dy) or 1.0
-            ux, uy = dx / dist, dy / dist
-            px, py = -uy * offset_perp, ux * offset_perp
-
-            sx, sy = x1 + ux * rq + px, y1 + uy * rq + py
-            ex, ey = x2 - ux * (rq + 2) + px, y2 - uy * (rq + 2) + py
-            activa = _es_ultima(orig, dest, cj_sim)
-            color_l = "#2563eb" if activa else "#64748b"
-            ancho = 3.0 if activa else 1.6
-
-            c.create_line(
-                sx,
-                sy,
-                ex,
-                ey,
-                arrow=tk.LAST,
-                arrowshape=(9, 11, 4),
-                fill=color_l,
-                width=ancho,
-            )
-            mx, my = (sx + ex) / 2 + px * 0.5, (sy + ey) / 2 + py * 0.5 - 6
-            c.create_text(
-                mx,
-                my,
-                text=etq,
-                font=("Segoe UI", 7, "bold" if activa else "normal"),
-                fill="#1d4ed8" if activa else "#334155",
-            )
-
-        bucles = [
-            (Estado.VERDE, -1, -1, "REINICIO", {Simbolo.REINICIO}),
-            (Estado.NARANJA, 1, -1, "REPORTE, ALERTA", {Simbolo.REPORTE, Simbolo.ALERTA}),
-            (Estado.AMARILLO, -1, 1, "ALERTA", {Simbolo.ALERTA}),
-            (
-                Estado.ROJO,
-                1,
-                1,
-                "REPORTE, ALERTA,\nCONSENSO",
-                {Simbolo.REPORTE, Simbolo.ALERTA, Simbolo.CONSENSO},
-            ),
-        ]
-        for est_b, dir_x, dir_y, etq_b, cj_b in bucles:
-            bx, by = pos_q[est_b]
-            activa = _es_ultima(est_b, est_b, cj_b)
-            col_b = "#2563eb" if activa else "#64748b"
-            cx0 = bx + dir_x * 16 - 18
-            cy0 = by + dir_y * 22 - 14
-            c.create_oval(
-                cx0,
-                cy0,
-                cx0 + 36,
-                cy0 + 28,
-                outline=col_b,
-                width=2.5 if activa else 1.4,
-            )
-            c.create_text(
-                cx0 + 18 + dir_x * 26,
-                cy0 + 14 + dir_y * 12,
-                text=etq_b,
-                justify="center",
-                font=("Segoe UI", 7, "bold" if activa else "normal"),
-                fill="#1d4ed8" if activa else "#475569",
-            )
-
-        for est, (qx, qy) in pos_q.items():
-            es_actual = est is q_actual
-            if es_actual:
-                c.create_oval(
-                    qx - rq - 6,
-                    qy - rq - 6,
-                    qx + rq + 6,
-                    qy + rq + 6,
-                    outline="#2563eb",
-                    width=3,
-                )
-            c.create_oval(
-                qx - rq,
-                qy - rq,
-                qx + rq,
-                qy + rq,
-                fill=COLORES[est],
-                outline="#0f172a",
-                width=2.5 if es_actual else 1.5,
-            )
-            if est in AFD.F:
-                c.create_oval(
-                    qx - rq + 4,
-                    qy - rq + 4,
-                    qx + rq - 4,
-                    qy + rq - 4,
-                    outline="#ffffff",
-                    width=1.8,
-                )
-            c.create_text(
-                qx,
-                qy,
-                text=est.value,
-                fill="#111827" if est is Estado.AMARILLO else "#ffffff",
-                font=("Segoe UI", 8, "bold"),
-            )
-
-        c.create_text(
-            215,
-            228,
-            text="Nota: Desde cualquier estado q ∈ Q, el símbolo REINICIO transiciona a δ(q, REINICIO) = VERDE (q₀).",
-            font=("Segoe UI", 7, "italic"),
-            fill="#475569",
-        )
-
-        for item in self.tree_delta.get_children():
-            self.tree_delta.delete(item)
-
-        estados_ord, simbolos_ord, delta = AFD.tabla_transicion_formal()
-        for q in estados_ord:
-            pref = "→ " if q is AFD.Q0 else ("* " if q in AFD.F else "  ")
-            valores = [f"{pref}{q.value}"] + [delta[(q, s)].value for s in simbolos_ord]
-            tag_fila = "activo" if q is q_actual else "normal"
-            self.tree_delta.insert("", "end", values=valores, tags=(tag_fila,))
-
-        w_hist = "ε" if not nodo.afd.palabra else " · ".join(s.value for s in nodo.afd.palabra)
-        ult_str = (
-            "Ninguna transición aún"
-            if ult is None
-            else f"δ({ult[0].value}, {ult[1].value}) = {ult[2].value}"
-        )
-        self.traza_nodo_var.set(
-            f"Palabra acumulada en {nodo.id}: w = {w_hist}  ⇒  δ̂(q₀, w) = {q_actual.value}\n"
-            f"Última transición ejecutada: {ult_str}"
-        )

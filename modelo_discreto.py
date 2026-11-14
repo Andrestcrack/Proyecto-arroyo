@@ -27,7 +27,7 @@ Alineado con el programa de Matemáticas Discretas de la Universidad del Norte
      - Distancias geodésicas d(u, v) con BFS y diámetro del grafo.
      - Centralidad de grado C_D(v), cercanía C_C(v) (y variante armónica H(v)) e intermediación C_B(v).
 
-  4. Autómata Finito Determinista (AFD) M = (Q, Σ, δ, q0, F) y Consenso Booleano C(R, k).
+  4. Función de Transición de Estados f: Q × Σ → Q y Consenso Booleano C(R, k).
 """
 
 from __future__ import annotations
@@ -39,10 +39,10 @@ from typing import Dict, Iterable, Iterator, List, Optional, Set, Tuple
 
 
 # ============================================================================
-# 1. AUTÓMATA FINITO DETERMINISTA (AFD)
+# 1. FUNCIÓN DISCRETA DE TRANSICIÓN DE ESTADOS DE ALERTA
 # ============================================================================
 class Estado(Enum):
-    """Conjunto finito de estados Q del autómata."""
+    """Conjunto finito de estados Q de alerta hidráulica."""
     VERDE = "VERDE"        # Normal
     AMARILLO = "AMARILLO"  # Preventivo aguas abajo
     NARANJA = "NARANJA"    # Reporte único (sin consenso)
@@ -50,7 +50,7 @@ class Estado(Enum):
 
 
 class Simbolo(Enum):
-    """Alfabeto de entrada Σ."""
+    """Conjunto finito de eventos de entrada Σ."""
     REPORTE = "REPORTE"       # llega un reporte ciudadano (sin consenso aún)
     CONSENSO = "CONSENSO"     # se alcanzó el umbral k (o crecida forzada)
     ALERTA = "ALERTA_ARRIBA"  # un nodo aguas arriba está en ROJO
@@ -72,10 +72,10 @@ DESCRIPCION: Dict[Estado, str] = {
 }
 
 
-class AFD:
+class ControlEstados:
     """
-    Autómata Finito Determinista M = (Q, Σ, δ, q0, F) con función de transición
-    total δ: Q × Σ → Q y extensión a palabras δ̂: Q × Σ* → Q.
+    Función discreta de transición de estados de alerta f: Q × Σ → Q
+    y su evaluación secuencial sobre secuencias de eventos w ∈ Σ*.
     """
 
     Q = frozenset(Estado)
@@ -104,15 +104,15 @@ class AFD:
             delta[(q, Simbolo.REINICIO)] = Estado.VERDE
             delta[(q, Simbolo.REPORTE)] = Estado.ROJO if q is Estado.ROJO else Estado.NARANJA
             delta[(q, Simbolo.ALERTA)] = Estado.AMARILLO if q is Estado.VERDE else q
-        assert len(delta) == len(AFD.Q) * len(AFD.SIGMA)
+        assert len(delta) == len(ControlEstados.Q) * len(ControlEstados.SIGMA)
         return delta
 
     DELTA: Dict[Tuple[Estado, Simbolo], Estado] = {}
 
     def __init__(self) -> None:
-        if not AFD.DELTA:
-            AFD.DELTA = AFD._construir_delta()
-        self.estado: Estado = AFD.Q0
+        if not ControlEstados.DELTA:
+            ControlEstados.DELTA = ControlEstados._construir_delta()
+        self.estado: Estado = ControlEstados.Q0
         self.palabra: List[Simbolo] = []
         self.historial: List[Tuple[Estado, Simbolo, Estado]] = []
 
@@ -120,13 +120,13 @@ class AFD:
     def ultima_transicion(self) -> Optional[Tuple[Estado, Simbolo, Estado]]:
         return self.historial[-1] if self.historial else None
 
-    def es_aceptacion(self, estado: Optional[Estado] = None) -> bool:
+    def es_critico(self, estado: Optional[Estado] = None) -> bool:
         q = self.estado if estado is None else estado
-        return q in AFD.F
+        return q in ControlEstados.F
 
     def procesar(self, simbolo: Simbolo) -> Tuple[Estado, Estado]:
         anterior = self.estado
-        nuevo = AFD.DELTA[(anterior, simbolo)]
+        nuevo = ControlEstados.DELTA[(anterior, simbolo)]
         self.estado = nuevo
         self.palabra.append(simbolo)
         self.historial.append((anterior, simbolo, nuevo))
@@ -140,7 +140,7 @@ class AFD:
         return pasos
 
     def reiniciar(self) -> None:
-        self.estado = AFD.Q0
+        self.estado = ControlEstados.Q0
         self.palabra.clear()
         self.historial.clear()
 
@@ -192,22 +192,22 @@ class ValidadorConsenso:
 # 3. GRAFO DE LA CUENCA: TEORÍA DE GRAFOS, ÁRBOLES Y ANÁLISIS DE REDES
 # ============================================================================
 class Nodo:
-    """Vértice v ∈ V con su propio AFD y su conjunto de reportantes R_v."""
+    """Vértice v ∈ V con su control discreto de estados y su conjunto de reportantes R_v."""
 
     def __init__(self, id_: str, nombre: str, corto: str, fuente: str) -> None:
         self.id = id_
         self.nombre = nombre
         self.corto = corto
         self.fuente = fuente
-        self.afd = AFD()
+        self.control_estado = ControlEstados()
         self.reportantes: Set[str] = set()
 
     @property
     def estado(self) -> Estado:
-        return self.afd.estado
+        return self.control_estado.estado
 
     def reiniciar(self) -> None:
-        self.afd.reiniciar()
+        self.control_estado.reiniciar()
         self.reportantes.clear()
 
 

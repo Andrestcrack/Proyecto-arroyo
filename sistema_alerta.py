@@ -4,7 +4,7 @@
 Lógica del Sistema de Alerta Temprana (independiente de la GUI).
 
 Coordina:
-  - Transiciones de los AFD por vértice.
+  - Transiciones de estado discreto por vértice.
   - Validación por umbral de consenso booleano C(R, k).
   - Propagación topológica aguas abajo mediante BFS (instantánea o por capas animadas).
   - Simulación formal de palabras w ∈ Σ* sobre un nodo.
@@ -29,7 +29,7 @@ LogFn = Callable[[str, str], None]  # (mensaje, etiqueta)
 
 
 class SistemaAlerta:
-    """Coordina AFD + consenso booleano + propagación BFS sobre el DAG."""
+    """Coordina transición de estados + consenso booleano + propagación BFS sobre el DAG."""
 
     def __init__(self, cuenca: CuencaDAG, k: int, log: LogFn) -> None:
         self.cuenca = cuenca
@@ -44,12 +44,12 @@ class SistemaAlerta:
         self.log(mensaje, etiqueta)
 
     def _transicion(self, nodo: Nodo, simbolo: Simbolo) -> bool:
-        antes, despues = nodo.afd.procesar(simbolo)
+        antes, despues = nodo.control_estado.procesar(simbolo)
         cambio = antes is not despues
         marca = "→" if cambio else "(sin cambio)"
         self._emitir(
-            f"[AFD] {nodo.id}: δ({antes.value}, {simbolo.value}) = {despues.value} {marca}",
-            "afd",
+            f"[ESTADO] {nodo.id}: δ({antes.value}, {simbolo.value}) = {despues.value} {marca}",
+            "estado",
         )
         return cambio
 
@@ -115,8 +115,8 @@ class SistemaAlerta:
         q_inicial = nodo.estado
         cad = " · ".join(s.value for s in lista_simbolos)
         self._emitir(
-            f"[AFD δ̂] Evaluando palabra w = ({cad}) en {nodo.id} desde q = {q_inicial.value}",
-            "afd",
+            f"[EVENTOS] Evaluando secuencia w = ({cad}) en {nodo.id} desde q = {q_inicial.value}",
+            "estado",
         )
         for s in lista_simbolos:
             if s is Simbolo.REINICIO:
@@ -166,7 +166,7 @@ class SistemaAlerta:
             nodo.reiniciar()
         self._contador_ciudadanos = 0
         self._emitir(
-            "Red reiniciada: todos los AFD en q0 = VERDE, conjuntos R_v = ∅.",
+            "Red reiniciada: todos los vértices en q0 = VERDE, conjuntos R_v = ∅.",
             "sistema",
         )
 
@@ -234,8 +234,8 @@ class SistemaAlerta:
         )
         lineas.append("")
 
-        # 3. Estado de los vértices y AFD
-        lineas.append(f"3. ESTADO ACTUAL DE LOS VÉRTICES Y AUTÓMATAS (Umbral k = {self.k})")
+        # 3. Estado de los vértices
+        lineas.append(f"3. ESTADO ACTUAL DE LOS VÉRTICES (Umbral k = {self.k})")
         lineas.append("-" * 80)
         for fila in g.tabla_grados():
             vid = str(fila["id"])
@@ -245,10 +245,10 @@ class SistemaAlerta:
                 self.k,
                 self.tiene_ancestro_critico(vid),
             )
-            w_str = "ε" if not n.afd.palabra else " · ".join(s.value for s in n.afd.palabra)
+            w_str = "ε" if not n.control_estado.palabra else " · ".join(s.value for s in n.control_estado.palabra)
             lineas.append(
                 f"  [{vid}] {n.nombre}\n"
-                f"       Estado AFD : {n.estado.value} ({DESCRIPCION[n.estado]})\n"
+                f"       Estado     : {n.estado.value} ({DESCRIPCION[n.estado]})\n"
                 f"       Vecindades : N⁻={fila['vecindad_in']}, N⁺={fila['vecindad_out']}, N(v)={fila['vecindad_abierta']}\n"
                 f"       Consenso   : {ev['formula_consenso']} con R_{vid} = {ev['conjunto_R']}\n"
                 f"       Traza w∈Σ* : {w_str}"

@@ -40,4 +40,4 @@ Haz clic en los 3 botones de consulta:
 ---
 
 ## 3. ¿Qué responder si el profesor pregunta por las siguientes entregas?
-> *"Para las siguientes entregas ya tenemos desarrollado el escalamiento a nivel metropolitano (toda Barranquilla hasta la Ciénaga de Mallorquín y el Arroyo León), ruteo tipo Google Maps con el algoritmo de Dijkstra sobre el subgrafo inducido libre de arroyos $G - V_{\text{bloqueados}}$, y el Autómata Finito Determinista (AFD) con consenso ciudadano."*
+> *"Para las siguientes entregas ya tenemos desarrollado el escalamiento a nivel metropolitano (toda Barranquilla hasta la Ciénaga de Mallorquín y el Arroyo León), ruteo tipo Google Maps con el algoritmo de Dijkstra sobre el subgrafo inducido libre de arroyos $G - V_{\text{bloqueados}}$, y el control de estados de alerta con consenso ciudadano $C(R, k)$."*

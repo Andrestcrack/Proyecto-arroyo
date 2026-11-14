@@ -3,7 +3,7 @@
 """
 Suite de pruebas unitarias para el Sistema de Monitoreo de Arroyos (Matemáticas Discretas).
 Cubre:
-  - Autómata Finito Determinista (AFD) y Consenso Booleano.
+  - Función Discreta de Transición de Estados de Alerta y Consenso Booleano.
   - Unidad 3 y Prof. Yesneri Zuleta: Vecindades, Grados (δ, Δ, δ±, Δ±), TAM y Corolario,
     Bipartición, Subgrafo inducido G - v, Euler/Hamilton/Planaridad, Trazas BFS/DFS,
     Dijkstra y Árbol de Expansión Mínimo (Kruskal y Prim).
@@ -20,7 +20,7 @@ import unittest
 from typing import List, Tuple
 
 from modelo_discreto import (
-    AFD,
+    ControlEstados,
     Estado,
     Simbolo,
     ValidadorConsenso,
@@ -29,39 +29,39 @@ from modelo_discreto import (
 from sistema_alerta import SistemaAlerta
 
 
-class TestAFD(unittest.TestCase):
-    """Pruebas formales sobre el Autómata Finito Determinista M = (Q, Σ, δ, q0, F)."""
+class TestFuncionTransicionEstados(unittest.TestCase):
+    """Pruebas formales sobre la función discreta de transición de estados f: Q × Σ → Q."""
 
     def test_totalidad_y_determinismo_delta(self) -> None:
-        afd = AFD()
-        self.assertEqual(afd.estado, Estado.VERDE)
-        self.assertEqual(len(AFD.DELTA), len(AFD.Q) * len(AFD.SIGMA))
+        ctrl = ControlEstados()
+        self.assertEqual(ctrl.estado, Estado.VERDE)
+        self.assertEqual(len(ControlEstados.DELTA), len(ControlEstados.Q) * len(ControlEstados.SIGMA))
         for q in Estado:
             for s in Simbolo:
-                self.assertIn((q, s), AFD.DELTA)
-                self.assertIsInstance(AFD.DELTA[(q, s)], Estado)
+                self.assertIn((q, s), ControlEstados.DELTA)
+                self.assertIsInstance(ControlEstados.DELTA[(q, s)], Estado)
 
     def test_transiciones_y_estado_absorbente_rojo(self) -> None:
-        afd = AFD()
-        self.assertEqual(afd.procesar(Simbolo.ALERTA), (Estado.VERDE, Estado.AMARILLO))
-        self.assertEqual(afd.procesar(Simbolo.REPORTE), (Estado.AMARILLO, Estado.NARANJA))
-        self.assertEqual(afd.procesar(Simbolo.CONSENSO), (Estado.NARANJA, Estado.ROJO))
-        self.assertTrue(afd.es_aceptacion())
-        self.assertEqual(afd.procesar(Simbolo.REPORTE), (Estado.ROJO, Estado.ROJO))
-        self.assertEqual(afd.procesar(Simbolo.ALERTA), (Estado.ROJO, Estado.ROJO))
-        self.assertEqual(afd.procesar(Simbolo.REINICIO), (Estado.ROJO, Estado.VERDE))
-        self.assertFalse(afd.es_aceptacion())
+        ctrl = ControlEstados()
+        self.assertEqual(ctrl.procesar(Simbolo.ALERTA), (Estado.VERDE, Estado.AMARILLO))
+        self.assertEqual(ctrl.procesar(Simbolo.REPORTE), (Estado.AMARILLO, Estado.NARANJA))
+        self.assertEqual(ctrl.procesar(Simbolo.CONSENSO), (Estado.NARANJA, Estado.ROJO))
+        self.assertTrue(ctrl.es_critico())
+        self.assertEqual(ctrl.procesar(Simbolo.REPORTE), (Estado.ROJO, Estado.ROJO))
+        self.assertEqual(ctrl.procesar(Simbolo.ALERTA), (Estado.ROJO, Estado.ROJO))
+        self.assertEqual(ctrl.procesar(Simbolo.REINICIO), (Estado.ROJO, Estado.VERDE))
+        self.assertFalse(ctrl.es_critico())
 
-    def test_funcion_transicion_extendida_palabra(self) -> None:
-        afd = AFD()
-        palabra = [Simbolo.REPORTE, Simbolo.ALERTA, Simbolo.CONSENSO]
-        pasos = afd.procesar_palabra(palabra)
+    def test_funcion_transicion_secuencial_eventos(self) -> None:
+        ctrl = ControlEstados()
+        secuencia = [Simbolo.REPORTE, Simbolo.ALERTA, Simbolo.CONSENSO]
+        pasos = ctrl.procesar_palabra(secuencia)
         self.assertEqual(len(pasos), 3)
-        self.assertEqual(afd.estado, Estado.ROJO)
-        self.assertEqual(afd.palabra, palabra)
-        afd.reiniciar()
-        self.assertEqual(afd.estado, Estado.VERDE)
-        self.assertEqual(len(afd.palabra), 0)
+        self.assertEqual(ctrl.estado, Estado.ROJO)
+        self.assertEqual(ctrl.palabra, secuencia)
+        ctrl.reiniciar()
+        self.assertEqual(ctrl.estado, Estado.VERDE)
+        self.assertEqual(len(ctrl.palabra), 0)
 
 
 class TestValidadorConsenso(unittest.TestCase):

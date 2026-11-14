@@ -33,4 +33,4 @@ En la entrega final (`../arroyos_uninorte.py`), el modelo evoluciona para cubrir
 - **Ampliación geográfica a toda la red metropolitana de Barranquilla**: mapa interactivo web completo con ruteo seguro calle por calle.
 - **Resto de la Unidad 3**: Bipartición $V_1 \cup V_2$, subgrafo inducido $G - v$, conectividad fuerte vs. débil, Teorema de Euler, Teoremas de Dirac y Ore (Hamilton), Grafos Planos ($V - E + F = 2$), trazas completas paso a paso de **BFS vs. DFS**, árboles con raíz, **Dijkstra** y **Árbol de Expansión Mínimo (Kruskal y Prim)**.
 - **Unidad 4 completa (Análisis de Redes)**: las 4 preguntas de modelación, distancias geodésicas con BFS, diámetro y las 3 medidas de centralidad (**Grado $C_D$, Cercanía $C_C$ / Armónica $H$ e Intermediación $C_B$**).
-- **Autómata Finito Determinista (AFD)** formal $\mathcal{M} = (Q, \Sigma, \delta, q_0, F)$ con diagrama en vivo y función extendida $\hat{\delta}(q_0, w)$.
+- **Modelo discreto de estados de alerta** $f: Q \times \Sigma \to Q$ con transición determinista y consenso ciudadano $C(R, k)$.
