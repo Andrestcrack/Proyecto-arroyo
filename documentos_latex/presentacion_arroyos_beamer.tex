@@ -9,7 +9,7 @@
 \usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta,positioning}
+\usetikzlibrary{arrows.meta,positioning,babel}
 \usepackage{hyperref}
 
 % ============================================================================
@@ -63,7 +63,8 @@
 % DIAPOSITIVA 2: AGENDA Y DISTRIBUCIÓN EQUITATIVA (10 MINUTOS)
 % ============================================================================
 \begin{frame}{Agenda de Sustentación (10 Minutos --- 2 Minutos por Expositor)}
-    \small
+    \footnotesize
+    \setlength{\tabcolsep}{4pt}
     \begin{tabular}{@{}cllc@{}}
         \toprule
         \textbf{Bloque} & \textbf{Expositor} & \textbf{Temática Principal} & \textbf{Tiempo} \\
@@ -91,26 +92,27 @@
 \begin{frame}{1. Problema Real en Barranquilla y Entorno Uninorte}
     \framesubtitle{Expositor: Jesús De León Jiménez}
     \begin{columns}[T]
-        \begin{column}{0.52\textwidth}
+        \begin{column}{0.53\textwidth}
+            \footnotesize
             \begin{alertblock}{¿Qué ocurre durante las lluvias?}
                 La escorrentía pluvial convierte ejes críticos en \textbf{arroyos peligrosos}:
                 \begin{itemize}
-                    \item Av. Circunvalar y Carrera 51B (Puerta 1 Uninorte).
-                    \item Carrera 53 (Rotonda Makro -- Portoazul).
+                    \item Av. Circunvalar y Cra 51B (Puerta 1 Uninorte).
+                    \item Cra 53 (Rotonda Makro -- Portoazul).
                     \item Villa Campestre, canal colector, Arroyo León y Ciénaga de Mallorquín.
                 \end{itemize}
             \end{alertblock}
             \begin{block}{Problemas Detectados}
                 \begin{itemize}
                     \item \textbf{Riesgo vial:} vehículos atrapados sin alerta temprana.
-                    \item \textbf{Falsas alarmas:} reportes ciudadanos aislados no verificados.
-                    \item \textbf{Falta de desvíos:} ausencia de rutas dinámicas por calles transitables.
+                    \item \textbf{Falsas alarmas:} reportes aislados sin verificar.
+                    \item \textbf{Falta de desvíos:} sin rutas dinámicas por calles transitables.
                 \end{itemize}
             \end{block}
         \end{column}
-        \begin{column}{0.45\textwidth}
+        \begin{column}{0.44\textwidth}
             \centering
-            \includegraphics[width=\textwidth]{mapa_barranquilla_google.png}
+            \includegraphics[width=0.96\textwidth]{mapa_barranquilla_google.png}
             \vspace{0.1cm}
             {\scriptsize Corredor geográfico Uninorte--Arroyo León--Mallorquín.}
         \end{column}
@@ -166,9 +168,10 @@
                 \end{itemize}
             \end{block}
         \end{column}
-        \begin{column}{0.50\textwidth}
+        \begin{column}{0.51\textwidth}
             \begin{block}{Función de Transición $f: Q \times \Sigma \to Q$}
-                \scriptsize
+                \tiny
+                \setlength{\tabcolsep}{3pt}
                 \begin{tabular}{@{}lllll@{}}
                     \toprule
                     \textbf{Estado $q$} & \textbf{REPORTE} & \textbf{ALERTA} & \textbf{CONSENSO} & \textbf{REINICIO} \\
@@ -180,9 +183,8 @@
                     \bottomrule
                 \end{tabular}
             \end{block}
-            \vspace{0.1cm}
             \begin{itemize}
-                \small
+                \footnotesize
                 \item $4$ estados discretos: \textcolor{univerde}{\textbf{VERDE}}, \textcolor{yellow!60!orange}{\textbf{AMARILLO}}, \textcolor{orange!90!black}{\textbf{NARANJA}} y \textcolor{unialerta}{\textbf{ROJO}}.
                 \item \textbf{ROJO} absorbe nuevos reportes hasta \texttt{REINICIO}.
             \end{itemize}
@@ -230,12 +232,11 @@
         \end{column}
         \begin{column}{0.36\textwidth}
             \begin{block}{Orden Topológico (Kahn)}
-                \[
-                    \pi = (N_1, N_2, N_4, N_3, N_5, N_6, N_7, N_8, N_9)
-                \]
-                \small
+                \footnotesize
+                $\pi = (N_1, N_2, N_4, N_3, \allowbreak N_5, N_6, N_7, N_8, N_9)$
+                \vspace{0.15cm}
                 \begin{itemize}
-                    \item Sin ciclos dirigidos: garantiza que el agua siempre avanza aguas abajo.
+                    \item Sin ciclos dirigidos: el agua siempre avanza aguas abajo.
                     \item Camino crítico ($L=5$): $N_1 \to N_4 \to N_5 \to N_7 \to N_8 \to N_9$.
                 \end{itemize}
             \end{block}
@@ -252,34 +253,33 @@
     \framesubtitle{Expositor: Karvin García Polo}
     \begin{columns}[T]
         \begin{column}{0.49\textwidth}
+            \footnotesize
             \begin{block}{Lema del Apretón de Manos y Grados}
-                \small
                 \begin{itemize}
                     \item $|V| = 9$ vértices, $|E| = 9$ aristas.
                     \item No dirigido: $\delta(G)=1$, $\Delta(G)=4$ ($N_7$).
-                    \item $\displaystyle\sum_{v \in V}\deg(v) = 18 = 2|E| = 2(9)$.
-                    \item Dirigido: $\displaystyle\sum \deg^- = \sum \deg^+ = 9$.
+                    \item $\sum_{v \in V}\deg(v) = 18 = 2|E| = 2(9)$.
+                    \item Dirigido: $\sum \deg^- = \sum \deg^+ = 9$.
                 \end{itemize}
             \end{block}
             \begin{block}{Bipartición y Planaridad}
-                \small
                 \begin{itemize}
-                    \item \textbf{Bipartito:} $V_1=\{N_1,N_3,N_5,N_6,N_8\}$, $V_2=\{N_2,N_4,N_7,N_9\}$ (único ciclo de longitud $4$, par).
-                    \item \textbf{Plano (Euler):} $V - E + F = 9 - 9 + 2 = 2$ y $m = 9 \le 2n - 4 = 14$.
+                    \item \textbf{Bipartito:} $V_1=\{N_1,N_3,N_5,N_6,N_8\}$, $V_2=\{N_2,N_4,N_7,N_9\}$ (ciclo par de long. $4$).
+                    \item \textbf{Plano (Euler):} $V - E + F = 9 - 9 + 2 = 2$; $m = 9 \le 2n - 4 = 14$.
                 \end{itemize}
             \end{block}
         \end{column}
         \begin{column}{0.48\textwidth}
+            \footnotesize
             \begin{alertblock}{Subgrafo Inducido $G - N_7$ (Vulnerabilidad)}
                 Al remover $N_7$ (\textit{Canal Colector}):
                 \begin{itemize}
                     \item Quedan $8$ vértices y $5$ aristas.
-                    \item Se fragmenta en \textbf{$3$ componentes conexas}: $\{N_1,N_4,N_5,N_6\}$, $\{N_2,N_3\}$, $\{N_8,N_9\}$.
-                    \item \textbf{Conclusión:} $N_7$ es \textbf{punto de articulación}; su colapso aísla $6$ sectores respecto al sumidero $N_9$.
+                    \item Se fragmenta en \textbf{$3$ componentes}: $\{N_1,N_4,N_5,N_6\}$, $\{N_2,N_3\}$, $\{N_8,N_9\}$.
+                    \item \textbf{Conclusión:} $N_7$ es \textbf{punto de articulación}; aísla $6$ sectores respecto a $N_9$.
                 \end{itemize}
             \end{alertblock}
             \begin{block}{Árbol de Expansión Mínimo (MST)}
-                \small
                 Kruskal y Prim coinciden en \textbf{$8$ aristas} y costo óptimo de \textbf{$5\,770\text{ m}$} (descartando $(N_5, N_7)$ de $740\text{ m}$).
             \end{block}
         \end{column}
@@ -385,18 +385,20 @@
     \framesubtitle{Expositor: Andrés Torres García}
     \begin{columns}[T]
         \begin{column}{0.48\textwidth}
+            \footnotesize
             \begin{block}{Verificación Automatizada}
-                Ejecución de \texttt{python -m unittest test\_arroyos.py -v}:
+                \texttt{python -m unittest test\_arroyos.py -v}:
                 \begin{itemize}
                     \item \textbf{$14/14$ pruebas aprobadas (\texttt{OK})} en $0.012\text{ s}$.
-                    \item Verifican consenso, transición de estados, TAM, bipartición, $G - N_7$, Kruskal/Prim, centralidades y desvíos Dijkstra.
+                    \item Verifican consenso, estados, TAM, bipartición, $G - N_7$, Kruskal/Prim, centralidades y Dijkstra.
                 \end{itemize}
             \end{block}
             \begin{block}{Conclusión Principal}
-                Las estructuras de Grafos y Redes transforman reportes ciudadanos dispersos en prevención hidráulica y navegación segura reproducible.
+                Grafos y Redes transforman reportes dispersos en prevención hidráulica y rutas seguras reproducibles.
             \end{block}
         \end{column}
         \begin{column}{0.49\textwidth}
+            \footnotesize
             \begin{alertblock}{Limitaciones y Trabajo Futuro}
                 \begin{itemize}
                     \item Sin sensores IoT físicos ni pluviómetros conectados aún.
@@ -404,10 +406,10 @@
                     \item Trazado dinámico fuera de los $71$ corredores cacheados depende de OSRM en línea.
                 \end{itemize}
             \end{alertblock}
-            \vspace{0.15cm}
+            \vspace{0.1cm}
             \centering
             \textbf{Repositorio GitHub (código y README):} \\
-            \small\url{https://github.com/Andrestcrack/Proyecto-arroyo}
+            \scriptsize\url{https://github.com/Andrestcrack/Proyecto-arroyo}
         \end{column}
     \end{columns}
 \end{frame}

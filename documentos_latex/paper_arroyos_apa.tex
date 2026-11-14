@@ -24,15 +24,16 @@
 \usepackage{float}
 \usepackage{xcolor}
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta,positioning,shapes.geometric}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,babel}
 \usepackage{enumitem}
 \usepackage[hidelinks]{hyperref}
 
 % ============================================================================
 % CONFIGURACIÓN VISUAL DE NORMAS APA (7.ª EDICIÓN)
 % ============================================================================
-\doublespacing
+\onehalfspacing
 \setlength{\parindent}{1.27cm} % Sangría APA de 0.5 pulgadas
+\setlength{\headheight}{14.5pt}
 
 % Encabezado APA: titulillo a la izquierda y número de página a la derecha
 \pagestyle{fancy}
@@ -116,7 +117,7 @@ Diseñar, modelar formalmente e implementar un sistema de software interactivo q
 \subsubsection{Objetivos Específicos}
 \begin{enumerate}[leftmargin=2.0cm]
     \item Formalizar la red de escorrentía del sector Universidad del Norte como un digrafo acíclico ponderado $G = (V, E)$, estableciendo con rigor sus vecindades, grados, ordenamiento topológico, bipartición, planaridad, matrices de representación y puntos de articulación.
-    \item Implementar un mecanismo de validación booleana $C(R_v, k)$ y una función de transición determinista sobre un conjunto finito de cuatro niveles de alerta $Q = \{\text{VERDE}, \text{AMARILLO}, \text{NARANJA}, \text{ROJO}\}$.
+    \item Implementar un mecanismo de validación booleana $C(R_v, k)$ y una función de transición determinista sobre un conjunto finito de cuatro niveles de alerta $Q = \{\text{VERDE}, \allowbreak \text{AMARILLO}, \allowbreak \text{NARANJA}, \allowbreak \text{ROJO}\}$.
     \item Aplicar algoritmos clásicos de grafos y redes (BFS, DFS, Kruskal, Prim y Dijkstra) tanto para la propagación preventiva aguas abajo como para el cálculo de desvíos sobre subgrafos inducidos libres de vértices bloqueados $G_{\text{vial}} - V_{\text{bloq}}$.
     \item Validar matemáticamente el comportamiento del sistema mediante una suite de pruebas unitarias automatizadas y ofrecer dos entornos de visualización ejecutables: una aplicación de escritorio en \texttt{tkinter} y un servidor web interactivo estilo Google Maps con $25$ nodos arteriales de Barranquilla.
 \end{enumerate}
@@ -148,6 +149,7 @@ La Tabla \ref{tab:transicion} define completamente la función total $f(q, \sigm
     \singlespacing
     \caption{Tabla formal de la función de transición de estados $f: Q \times \Sigma \to Q$}
     \label{tab:transicion}
+    \small
     \begin{tabular}{@{}lllll@{}}
         \toprule
         \textbf{Estado actual $q \in Q$} & \textbf{REPORTE} & \textbf{ALERTA\_ARRIBA} & \textbf{CONSENSO} & \textbf{REINICIO} \\
@@ -240,11 +242,11 @@ En concordancia con la Unidad 4 del curso (Newman, 2018), el sistema responde a 
 % ============================================================================
 \section{Solución: Algoritmos y Datos}
 
-La solución tecnológica fue desarrollada íntegramente en \textbf{Python 3} utilizando únicamente la biblioteca estándar (\texttt{tkinter}, \texttt{http.server}, \texttt{heapq}, \texttt{collections}, \texttt{json}, \texttt{urllib}, \texttt{unittest}), garantizando portabilidad total sin dependencias externas. La arquitectura se divide en seis módulos principales disponibles en \url{https://github.com/Andrestcrack/Proyecto-arroyo}: \texttt{modelo\_discreto.py}, \texttt{sistema\_alerta.py}, \texttt{interfaz\_app.py}, \texttt{servidor\_web\_arroyos.py}, \texttt{recursos\_mapa.py} y \texttt{test\_arroyos.py}.
+La solución tecnológica fue desarrollada íntegramente en \textbf{Python 3} utilizando únicamente la biblioteca estándar (\texttt{tkinter}, \texttt{http.server}, \texttt{heapq}, \texttt{collections}, \texttt{json}, \texttt{urllib}, \texttt{unittest}), garantizando portabilidad total sin dependencias externas. {\sloppy La arquitectura se divide en seis módulos principales: \texttt{modelo\_discreto.py}, \texttt{sistema\_alerta.py}, \texttt{interfaz\_app.py}, \texttt{servidor\_web\_arroyos.py}, \texttt{recursos\_mapa.py} y \texttt{test\_arroyos.py}, disponibles en \url{https://github.com/Andrestcrack/Proyecto-arroyo}.\par}
 
 \subsection{Algoritmo de Validación Booleana y Propagación Preventiva (BFS)}
 
-Cuando un usuario reporta una inundación en el nodo $v$, el algoritmo ejecutado en \texttt{SistemaAlerta.enviar\_reporte} sigue estos pasos:
+{\sloppy Cuando un usuario reporta una inundación en el nodo $v$, el algoritmo del método \texttt{enviar\_reporte} (de \texttt{SistemaAlerta}) sigue estos pasos:\par}
 \begin{enumerate}[leftmargin=2.0cm]
     \item Inserta el identificador del reportante en el conjunto $R_v \leftarrow R_v \cup \{c\}$.
     \item Evalúa el consenso booleano $C(R_v, k) = (|R_v| \ge k)$. Si $C = \text{F}$, aplica la transición $f(q_v, \text{REPORTE})$ (pasando usualmente de $\text{VERDE}$ a $\text{NARANJA}$).
@@ -259,7 +261,7 @@ El sistema define el subgrafo inducido seguro $G_{\text{seg}} = G_{\text{vial}}[
 
 \subsection{Escalamiento Web Metropolitano (25 Nodos y Ruteo Calle por Calle)}
 
-Adicionalmente a la aplicación de escritorio en \texttt{tkinter}, el archivo \texttt{servidor\_web\_arroyos.py} levanta un servidor HTTP local (\texttt{ThreadingHTTPServer}) que despliega una interfaz web interactiva estilo Google Maps sobre cartografía real de OpenStreetMap / CartoDB / Esri. Para reflejar fielmente la malla arterial de Barranquilla, se amplió la red de los $9$ nodos iniciales de la cuenca Uninorte ($N_1$--$N_9$) a \textbf{$25$ nodos georreferenciados y $31$ corredores viales bidireccionales} ($N_{10}$--$N_{25}$), cubriendo la Universidad del Atlántico, Ciudad Mallorquín, Vía 40 (Ventana al Mundo y Puerta de Oro), Carrera 53 (Buenavista y El Prado), Carrera 51B (Viva Barranquilla y Arroyo de la 84), Carrera 54 (Calle 76), Avenida Olaya Herrera / Carrera 46 (Calles 84, 72 y 53), Avenida Circunvalar (La Pradera, Estadio Metropolitano y Calle 30), Avenida Murillo y Paseo Bolívar. Para garantizar que las rutas trazadas sigan las curvas reales de las calles y no líneas rectas, el servidor consulta el motor OSRM (\textit{Open Source Routing Machine}) y cuenta con \textbf{$71$ polilíneas viales precargadas} que aseguran la operatividad y el cálculo de desvíos aun sin conexión a Internet.
+Adicionalmente a la aplicación de escritorio en \texttt{tkinter}, el archivo \texttt{servidor\_\allowbreak{}web\_\allowbreak{}arroyos.py} levanta un servidor HTTP local (\texttt{ThreadingHTTPServer}) que despliega una interfaz web interactiva estilo Google Maps sobre cartografía real de OpenStreetMap / CartoDB / Esri. Para reflejar fielmente la malla arterial de Barranquilla, se amplió la red de los $9$ nodos iniciales de la cuenca Uninorte ($N_1$--$N_9$) a \textbf{$25$ nodos georreferenciados y $31$ corredores viales bidireccionales} ($N_{10}$--$N_{25}$), cubriendo la Universidad del Atlántico, Ciudad Mallorquín, Vía 40 (Ventana al Mundo y Puerta de Oro), Carrera 53 (Buenavista y El Prado), Carrera 51B (Viva Barranquilla y Arroyo de la 84), Carrera 54 (Calle 76), Avenida Olaya Herrera / Carrera 46 (Calles 84, 72 y 53), Avenida Circunvalar (La Pradera, Estadio Metropolitano y Calle 30), Avenida Murillo y Paseo Bolívar. Para garantizar que las rutas trazadas sigan las curvas reales de las calles y no líneas rectas, el servidor consulta el motor OSRM (\textit{Open Source Routing Machine}) y cuenta con \textbf{$71$ polilíneas viales precargadas} que aseguran la operatividad y el cálculo de desvíos aun sin conexión a Internet.
 
 % ============================================================================
 % 5. RESULTADOS E INTERPRETACIÓN
@@ -345,7 +347,7 @@ evitando por completo el tramo desbordado. En cambio, si el colapso ocurre en el
 \begin{figure}[H]
     \centering
     \singlespacing
-    \includegraphics[width=0.92\textwidth]{mapa_barranquilla_google.png}
+    \includegraphics[width=0.78\textwidth]{mapa_barranquilla_google.png}
     \caption{Cartografía base del corredor Circunvalar--Uninorte--Villa Campestre--Arroyo León--Ciénaga de Mallorquín empleada en la aplicación de escritorio (\texttt{interfaz\_app.py}).}
     \label{fig:mapa_google}
 \end{figure}
@@ -353,7 +355,7 @@ evitando por completo el tramo desbordado. En cambio, si el colapso ocurre en el
 \begin{figure}[H]
     \centering
     \singlespacing
-    \includegraphics[width=0.92\textwidth]{mapa_panoramico_uninorte.png}
+    \includegraphics[width=0.78\textwidth]{mapa_panoramico_uninorte.png}
     \caption{Vista panorámica del sector Vía a la Playa--Eduardo Santos--Universidad del Norte utilizada en el prototipo interactivo de validación.}
     \label{fig:mapa_panoramico}
 \end{figure}
