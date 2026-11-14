@@ -73,7 +73,7 @@
         2 & \textbf{Samuel De Oro Torres} & Conjuntos, consenso $C(R,k)$, estados y Digrafo DAG & 2:00 \\
         3 & \textbf{Karvin García Polo} & Teoría de Grafos (Unidad 3): grados, $G-N_7$ y MST & 2:00 \\
         4 & \textbf{Juan Sierra Varela} & Redes (Unidad 4), BFS preventivo y desvío Dijkstra & 2:00 \\
-        5 & \textbf{Andrés Torres García} & Software, mapa web (25 nodos), pruebas y conclusiones & 2:00 \\
+        5 & \textbf{Andrés Torres García} & Software, mapa web (30 nodos), pruebas y conclusiones & 2:00 \\
         \bottomrule
     \end{tabular}
 
@@ -139,7 +139,7 @@
             \begin{block}{Solución Entregable}
                 \begin{itemize}
                     \item \textbf{App de Escritorio:} simulación interactiva + auditoría formal completa.
-                    \item \textbf{Mapa Web estilo Google Maps:} $25$ nodos arteriales y $31$ corredores con ruteo por calles reales.
+                    \item \textbf{Mapa Web estilo Google Maps:} $30$ nodos arteriales y $45$ corredores con ruteo por calles reales.
                     \item \textbf{Sin librerías externas:} $100\%$ biblioteca estándar de Python.
                 \end{itemize}
             \end{block}
@@ -361,14 +361,14 @@
 % ============================================================================
 \section{5. Implementación, Demo y Conclusiones (Andrés Torres)}
 
-\begin{frame}{5. Arquitectura Ejecutable y Escalamiento Web (25 Nodos)}
+\begin{frame}{5. Arquitectura Ejecutable y Escalamiento Web (30 Nodos)}
     \framesubtitle{Expositor: Andrés Torres García}
     \begin{columns}[T]
         \begin{column}{0.53\textwidth}
             \begin{block}{Dos Entornos Conectados en Python Puro}
                 \begin{itemize}
                     \item \textbf{App de Escritorio (\texttt{interfaz\_app.py}):} mapa interactivo Uninorte, controles de consenso $k$, animación BFS, ruteo Dijkstra y auditoría Unidad 3 y 4.
-                    \item \textbf{Servidor Web (\texttt{servidor\_web\_arroyos.py}):} vista tipo Google Maps con \textbf{$25$ nodos} ($9$ cuenca + $16$ arterias de Barranquilla: Vía 40, Cra 51B, Cra 53, Cra 46, Cll 84/76/72, Murillo, Cll 30, Circunvalar), \textbf{$31$ corredores} y \textbf{$71$ polilíneas OSM} precargadas calle por calle.
+                    \item \textbf{Servidor Web (\texttt{servidor\_web\_arroyos.py}):} vista tipo Google Maps con \textbf{$30$ nodos} ($9$ cuenca + $21$ arterias de Barranquilla: Vía 40, Cra 51B, Cra 53, Cra 46, Murillo, Circunvalar, Cordialidad, Evaristo Sourdis, Cra 9 \# 50-35 y Cra 9D \# 50A-45), \textbf{$45$ corredores} y \textbf{$85$ polilíneas OSM} precargadas.
                 \end{itemize}
             \end{block}
         \end{column}
@@ -402,8 +402,8 @@
             \begin{alertblock}{Limitaciones y Trabajo Futuro}
                 \begin{itemize}
                     \item Sin sensores IoT físicos ni pluviómetros conectados aún.
-                    \item Cobertura concentrada en vías arteriales principales ($25$ nodos).
-                    \item Trazado dinámico fuera de los $71$ corredores cacheados depende de OSRM en línea.
+                    \item Cobertura concentrada en vías arteriales principales ($30$ nodos).
+                    \item Trazado dinámico fuera de los $85$ corredores cacheados depende de OSRM en línea.
                 \end{itemize}
             \end{alertblock}
             \vspace{0.1cm}

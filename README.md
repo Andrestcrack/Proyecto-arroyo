@@ -38,14 +38,14 @@ Desde la interfaz gráfica puedes:
 - Consultar todos los análisis formales de **Unidad 3 y Unidad 4**: grados, vecindades $N^-(v), N^+(v), N(v), N[v]$, Teorema del Apretón de Manos (TAM), matriz de adyacencia/incidencia, bipartición, subgrafo inducido $G - v$ (punto de articulación `N7`), Euler/Hamilton/Planaridad, trazas BFS/DFS, MST (Kruskal y Prim) y centralidades ($C_D$, $C_C$, $H$, $C_B$).
 - Pulsar el botón **`🌐 Abrir Mapa Web Interactivo (Google Maps Real)`** para lanzar el servidor web local en `http://localhost:8080`.
 
-### B. Servidor Web Interactivo ("Google Maps de Arroyos" – 25 Nodos)
+### B. Servidor Web Interactivo ("Google Maps de Arroyos" – 30 Nodos)
 También puede ejecutarse directamente desde la terminal:
 ```bash
 python -c "from servidor_web_arroyos import iniciar_servidor_web; iniciar_servidor_web(puerto=8080, abrir_navegador=True)"
 ```
 Incluye:
-- **25 nodos monitoreados en tiempo real**: los 9 nodos de la cuenca Uninorte (`N1`–`N9`) más **16 nodos en las vías principales de Barranquilla** (`N10`–`N25`: Vía 40, Cra 51B, Cra 53, Cra 46 / Av. Olaya Herrera, Calle 84, Calle 76, Calle 72, Av. Murillo, Calle 30 y Av. Circunvalar).
-- **Ruteo real calle por calle** con trazado OSRM (OpenStreetMap) y **71 corredores viales precargados** para operar y desviar el tráfico por calles reales incluso sin conexión externa.
+- **30 nodos monitoreados en tiempo real**: los 9 nodos de la cuenca Uninorte (`N1`–`N9`) más **21 nodos en las vías principales de Barranquilla** (`N10`–`N30`: Vía 40, Cra 51B, Cra 53, Cra 46 / Av. Olaya Herrera, Calle 84, Calle 76, Calle 72, Av. Murillo, Calle 30, Av. Circunvalar, Av. de La Cordialidad / Calle 90, Evaristo Sourdis Diagonal 64B, Calle 60 / Cra 21B, Cra 9 # 50-35 y Cra 9D # 50A-45).
+- **Ruteo real calle por calle** con trazado OSRM (OpenStreetMap) y **85 tramos viales precargados** para operar y desviar el tráfico por calles reales incluso sin conexión externa.
 
 ### C. Prototipo Beta Preliminar (Entrega 1)
 ```bash
@@ -74,7 +74,7 @@ Proyecto-arroyo/
 ├── modelo_discreto.py         # Estados, Consenso Booleano, CuencaDAG, Unidad 3, Unidad 4 y Dijkstra vial
 ├── sistema_alerta.py          # Coordinación de eventos, propagación BFS y generación de informes
 ├── interfaz_app.py            # Interfaz gráfica de escritorio (tkinter): mapa, monitoreo y rutas seguras
-├── servidor_web_arroyos.py    # Servidor HTTP local + Google Maps interactivo con 25 nodos y ruteo vial
+├── servidor_web_arroyos.py    # Servidor HTTP local + Google Maps interactivo con 30 nodos y ruteo vial
 ├── recursos_mapa.py           # Imagen base del mapa codificada en Base64
 ├── test_arroyos.py            # Suite de 14 pruebas unitarias (unittest)
 ├── mapa_barranquilla_google.png
