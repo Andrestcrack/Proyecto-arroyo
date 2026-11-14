@@ -1,8 +1,10 @@
 # Sistema Colaborativo de Alerta Temprana y Ruteo Seguro de Arroyos (Barranquilla – Uninorte)
 
-Proyecto final de **Matemáticas Discretas** (Universidad del Norte) que modela la red de escorrentía pluvial del corredor **Uninorte – Villa Campestre – Arroyo León – Ciénaga de Mallorquín** y la malla vial de **Barranquilla** mediante estructuras formales de **Teoría de Grafos (Unidades 3 y 4)**, análisis de redes y lógica discreta de consenso ciudadano.
+Proyecto final de **Matemáticas Discretas (NRC 3230)** — Universidad del Norte — Profesor: **Iván Yesid Gómez Gómez**.  
+Modela la red de escorrentía pluvial del corredor **Uninorte – Villa Campestre – Arroyo León – Ciénaga de Mallorquín** y la malla vial de **Barranquilla** mediante estructuras formales de **Teoría de Grafos (Unidades 3 y 4)**, análisis de redes y lógica discreta de consenso ciudadano.
 
-🔗 **Repositorio oficial:** https://github.com/Andrestcrack/Proyecto-arroyo
+- **Grupo 1:** Jesús De León Jiménez, Samuel De Oro Torres, Karvin García Polo, Juan Sierra Varela y Andrés Torres García.
+- 🔗 **Repositorio oficial:** https://github.com/Andrestcrack/Proyecto-arroyo
 
 ---
 
